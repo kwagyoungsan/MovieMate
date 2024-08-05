@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.moviemate"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.moviemate"
