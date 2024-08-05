@@ -24,6 +24,13 @@ class MainActivity : ComponentActivity() {
             }
         }
         val apiKey = BuildConfig.API_KEY
+        val test = BASE_URL+"${apiKey}&targetDt=20240804"
+        /**
+         * TODO
+         * 1. Retrofit2 사용을 위한 MVVM 구조 서치
+         * 2. 응답 받기
+         * 3. Compose 공부
+         */
     }
 }
 
