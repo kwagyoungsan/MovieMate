@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -7,13 +10,24 @@ android {
     namespace = "com.example.moviemate"
     compileSdk = 34
 
+    buildFeatures {
+        dataBinding = true
+        buildConfig = true
+    }
+
+    val properties = Properties().apply {
+        load(FileInputStream(File(rootProject.rootDir, "local.properties")))
+    }
+    // Key 정보가 없을 경우 ""를 입력해주도록하면 빌드 에러를 방지할 수 있다.
+    val apiKey = properties["API_KEY"] ?: "\"\""
+
     defaultConfig {
         applicationId = "com.example.moviemate"
         minSdk = 24
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
-
+        buildConfigField("String", "API_KEY", "$apiKey")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true

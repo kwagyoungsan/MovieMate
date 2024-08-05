@@ -23,6 +23,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        val apiKey = BuildConfig.API_KEY
     }
 }
 
@@ -41,3 +42,10 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
+
+/**
+ * TODO
+ * api키를 사용하는 방법
+ * val apiKey = BuildConfig.API_KEY
+ *
+ */
