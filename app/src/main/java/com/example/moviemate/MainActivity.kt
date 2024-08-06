@@ -1,36 +1,44 @@
 package com.example.moviemate
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import com.example.moviemate.model.API.BASE_URL_KEY
 import com.example.moviemate.ui.theme.MovieMateTheme
+import com.example.moviemate.viewmodel.DailyViewModel
 
 class MainActivity : ComponentActivity() {
+    private val dailyViewModel: DailyViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MovieMateTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     Greeting("Android")
                 }
             }
         }
-        val apiKey = BuildConfig.API_KEY
-        val test = BASE_URL+"${apiKey}&targetDt=20240804"
-        /**
-         * TODO
-         * 1. Retrofit2 사용을 위한 MVVM 구조 서치
-         * 2. 응답 받기
-         * 3. Compose 공부
-         */
+
+//        dailyViewModel.getData()
+
+        dailyViewModel.result.observe(this, Observer { data ->
+            // 데이터를 받아서 필요한 작업 수행
+            Log.d("MainActivity", "Observed data: $data")
+        })
     }
 }
 
