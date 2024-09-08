@@ -33,17 +33,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MyApp()
-            /**
-             * Compose에서는 Fragment를 사용하지 않는다.
-             * 기존에는 fragment와 navigation을 이용해서 파일 및 화면 이동을 했는데..
-             * 이제는 어떻게 하나?
-             * 그 방법을 찾아야 한다.
-             *
-             * bottomnavigation을 사용하면 기존에 fragment 처럼 사용할 수 있다고 하는데?
-             * 더 찾아봐야 할 것 같다.
-             * https://medium.com/geekculture/bottom-navigation-in-jetpack-compose-android-9cd232a8b16
-             *
-             */
         }
     }
 }
@@ -57,18 +46,12 @@ fun MyApp() {
     }
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MainFragment() {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Main Fragment") })
-        },
-        content = {
-            Text("This is the Main Fragment", modifier = Modifier.padding(16.dp))
-        }
-    )
+
+sealed class BottomNavItem(
+    val title: Int, val icon: Int, val screenRoute: String
+) {
+    object Calendar : BottomNavItem(R.string.text_calendar, R.drawable.ic_calendar, CALENDAR)
+    object Timeline : BottomNavItem(R.string.text_timeline, R.drawable.ic_timeline, TIMELINE)
 }
 
 @Preview(showBackground = true)
