@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">MovieMate</string>
     <string name="mainFragment">MainFragment</string>
+    <string name="movieRank">Movie Rank</string>
+    <string name="search">Search</string>
+    <string name="splash">Splash</string>
+    <string name="detail">Detail</string>
 </resources>
