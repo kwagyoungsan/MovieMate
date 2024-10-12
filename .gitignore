@@ -123,6 +123,7 @@ obj/
 .idea/git_toolbox_blame.xml
 .idea/material_theme_project_new.xml
 .idea/inspectionProfiles/Project_Default.xml
+.idea/other.xml
 
 # Legacy Eclipse project files
 .classpath
