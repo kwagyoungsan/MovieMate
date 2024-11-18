@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePickerDialog
@@ -62,8 +64,9 @@ import java.util.Calendar
 
 @Composable
 fun MovieRankPage() {
-    var isFirstButtonChecked by remember { mutableStateOf(true) }
-    var isSecondButtonChecked by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf("0~50만") }
+    var dayButton by remember { mutableStateOf(true) }
+    var weekButton by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -76,11 +79,10 @@ fun MovieRankPage() {
             modifier = Modifier
                 .background(Color.Red)
                 .fillMaxWidth()
-                .padding(16.dp)  // 전체 Column의 padding 추가
+                .padding(16.dp)
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -88,73 +90,79 @@ fun MovieRankPage() {
 
                 Spacer(Modifier.width(30.dp))
 
-                // 첫 번째 토글 버튼 (일간)
                 ToggleButtonCompose(
-                    checked = isFirstButtonChecked,
+                    checked = dayButton,
                     onCheckedChange = {
-                        isFirstButtonChecked = it
-                        if (it) {
-                            isSecondButtonChecked = false // 첫 번째 버튼이 체크되면 두 번째 버튼 해제
-                        } else {
-                            isSecondButtonChecked = true
-                        }
+                        dayButton = it
+                        weekButton = !it
                     },
                     text = "일간"
                 )
 
-                // 두 번째 토글 버튼 (주간)
                 ToggleButtonCompose(
-                    checked = isSecondButtonChecked,
+                    checked = weekButton,
                     onCheckedChange = {
-                        isSecondButtonChecked = it
-                        if (it) {
-                            isFirstButtonChecked = false // 두 번째 버튼이 체크되면 첫 번째 버튼 해제
-                        } else {
-                            isFirstButtonChecked = true
-                        }
+                        weekButton = it
+                        dayButton = !it
                     },
                     text = "주간"
                 )
             }
 
-            // "날짜" 텍스트와 날짜 선택 버튼 사이에 같은 간격 추가
             Row(
                 modifier = Modifier,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "날짜")
-                Spacer(Modifier.width(16.dp))  // 날짜 텍스트와 날짜 선택 버튼 사이에 동일한 간격 추가
+                Spacer(Modifier.width(16.dp))
 
-                if (isFirstButtonChecked) {
-                    // 일간 선택일 경우 단일 날짜 선택
+                if (dayButton) {
                     SingleDatePicker(context = LocalContext.current)
-                } else if (isSecondButtonChecked) {
-                    // 주간 선택일 경우 주간 날짜 선택
+                } else if (weekButton) {
                     DateRangePickerWithAutoWeek(context = LocalContext.current)
                 }
             }
 
-            Row(
-                modifier = Modifier,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "관객 수")
-                Spacer(Modifier.width(16.dp))
-                Text(text = "관객 수 2")
+            Column {
+                // "관객 수"와 버튼들을 한 Row로 배치
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically // 세로 정렬
+                ) {
+                    Text(
+                        text = "관객 수",
+                        modifier = Modifier.padding(end = 30.dp) // 텍스트와 버튼 간 간격
+                    )
+
+                    // 드래그 가능한 버튼들을 LazyRow로 처리
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val options: List<String> = listOf("0~50만", "50~100만", "100~500만", "500~1000만", "1000만 이상")
+
+                        items(items = options, key = { it }) { option ->
+                            ToggleButtonCompose(
+                                checked = selectedOption == option,
+                                onCheckedChange = { if (it) selectedOption = option },
+                                text = option
+                            )
+                        }
+                    }
+                }
             }
 
-            // "검색" 버튼을 관객 수 밑에 가운데 정렬로 추가
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 24.dp),  // 관객 수와 검색 버튼 사이의 간격
-                contentAlignment = Alignment.Center  // 가운데 정렬
+                    .padding(top = 24.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Button(onClick = {
-                    // 검색 버튼 클릭 시 수행할 작업
-                    Log.d("MovieRankPage", "검색 버튼 클릭됨")
+                    Log.d("MovieRankPage", "선택된 옵션: $selectedOption")
                 }) {
                     Text(text = "검색")
                 }
@@ -163,10 +171,12 @@ fun MovieRankPage() {
     }
 }
 
-
-
 @Composable
-fun ToggleButtonCompose(checked: Boolean, onCheckedChange: (Boolean) -> Unit, text: String) {
+fun ToggleButtonCompose(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    text: String
+) {
     val tint by animateColorAsState(if (checked) Color.Green else Color.LightGray)
     val textColor = if (checked) Color.Black else Color.White
 
@@ -177,10 +187,20 @@ fun ToggleButtonCompose(checked: Boolean, onCheckedChange: (Boolean) -> Unit, te
             .clip(CircleShape)
             .border(1.dp, Color.Transparent, CircleShape)
             .background(tint)
+            .width(100.dp) // 버튼의 너비 설정
+            .height(40.dp) // 버튼의 높이 설정
     ) {
-        Text(text, color = textColor)
+        Text(
+            text = text,
+            color = textColor,
+            maxLines = 1,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
+
+
 
 @Composable
 fun Spacer(num: Int) {
