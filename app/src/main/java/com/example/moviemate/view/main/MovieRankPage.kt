@@ -59,148 +59,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.moviemate.R
+import com.example.moviemate.model.Constants
+import com.example.moviemate.model.customButtonModifier
 import java.time.LocalDate
 import java.util.Calendar
-
-@Composable
-fun MovieRankPage() {
-    var selectedOption by remember { mutableStateOf("0~50만") }
-    var dayButton by remember { mutableStateOf(true) }
-    var weekButton by remember { mutableStateOf(false) }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
-        Column(
-            verticalArrangement = Arrangement.SpaceAround,
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier
-                .background(Color.Red)
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "기간")
-
-                Spacer(Modifier.width(30.dp))
-
-                ToggleButtonCompose(
-                    checked = dayButton,
-                    onCheckedChange = {
-                        dayButton = it
-                        weekButton = !it
-                    },
-                    text = "일간"
-                )
-
-                ToggleButtonCompose(
-                    checked = weekButton,
-                    onCheckedChange = {
-                        weekButton = it
-                        dayButton = !it
-                    },
-                    text = "주간"
-                )
-            }
-
-            Row(
-                modifier = Modifier,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "날짜")
-                Spacer(Modifier.width(16.dp))
-
-                if (dayButton) {
-                    SingleDatePicker(context = LocalContext.current)
-                } else if (weekButton) {
-                    DateRangePickerWithAutoWeek(context = LocalContext.current)
-                }
-            }
-
-            Column {
-                // "관객 수"와 버튼들을 한 Row로 배치
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically // 세로 정렬
-                ) {
-                    Text(
-                        text = "관객 수",
-                        modifier = Modifier.padding(end = 30.dp) // 텍스트와 버튼 간 간격
-                    )
-
-                    // 드래그 가능한 버튼들을 LazyRow로 처리
-                    LazyRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val options: List<String> = listOf("0~50만", "50~100만", "100~500만", "500~1000만", "1000만 이상")
-
-                        items(items = options, key = { it }) { option ->
-                            ToggleButtonCompose(
-                                checked = selectedOption == option,
-                                onCheckedChange = { if (it) selectedOption = option },
-                                text = option
-                            )
-                        }
-                    }
-                }
-            }
-
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(onClick = {
-                    Log.d("MovieRankPage", "선택된 옵션: $selectedOption")
-                }) {
-                    Text(text = "검색")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ToggleButtonCompose(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    text: String
-) {
-    val tint by animateColorAsState(if (checked) Color.Green else Color.LightGray)
-    val textColor = if (checked) Color.Black else Color.White
-
-    IconToggleButton(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-        modifier = Modifier
-            .clip(CircleShape)
-            .border(1.dp, Color.Transparent, CircleShape)
-            .background(tint)
-            .width(100.dp) // 버튼의 너비 설정
-            .height(40.dp) // 버튼의 높이 설정
-    ) {
-        Text(
-            text = text,
-            color = textColor,
-            maxLines = 1,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-}
-
-
 
 @Composable
 fun Spacer(num: Int) {
@@ -214,7 +76,6 @@ fun SingleDatePicker(context: Context) {
     var showDatePickerDialog by remember { mutableStateOf(false) }
     val calendar = Calendar.getInstance()
 
-    // remember 상태로 선택된 날짜 기억
     var year by remember { mutableStateOf(calendar.get(Calendar.YEAR)) }
     var month by remember { mutableStateOf(calendar.get(Calendar.MONTH)) }
     var day by remember { mutableStateOf(calendar.get(Calendar.DAY_OF_MONTH)) }
@@ -222,7 +83,7 @@ fun SingleDatePicker(context: Context) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Button(onClick = {
@@ -233,7 +94,6 @@ fun SingleDatePicker(context: Context) {
         }
 
         if (showDatePickerDialog) {
-            // 선택된 날짜로 다이얼로그 표시
             val datePickerDialog = android.app.DatePickerDialog(
                 context,
                 { _, selectedYear, selectedMonth, selectedDay ->
@@ -260,30 +120,25 @@ fun DateRangePickerWithAutoWeek(context: Context) {
     var showStartDatePickerDialog by remember { mutableStateOf(false) }
     val calendar = Calendar.getInstance()
 
-    // remember 상태로 선택된 날짜 기억
     var year by remember { mutableStateOf(calendar.get(Calendar.YEAR)) }
     var month by remember { mutableStateOf(calendar.get(Calendar.MONTH)) }
     var day by remember { mutableStateOf(calendar.get(Calendar.DAY_OF_MONTH)) }
 
-    // 주간 범위 업데이트 함수
     fun updateWeekRange(selectedYear: Int, selectedMonth: Int, selectedDay: Int) {
         val cal = Calendar.getInstance()
 
-        // 선택된 날짜로 캘린더 설정
         cal.set(selectedYear, selectedMonth, selectedDay)
         Log.d("DateRangePicker", "캘린더에 설정된 날짜: ${cal.get(Calendar.YEAR)}-${cal.get(Calendar.MONTH) + 1}-${cal.get(Calendar.DAY_OF_MONTH)}")
 
-        // 주간의 일요일 찾기
         cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
         val startYear = cal.get(Calendar.YEAR)
-        val startMonth = cal.get(Calendar.MONTH) + 1  // 표시용으로만 +1
+        val startMonth = cal.get(Calendar.MONTH) + 1
         val startDay = cal.get(Calendar.DAY_OF_MONTH)
         startDate = "$startYear-$startMonth-$startDay"
 
-        // 주간의 토요일 찾기
         cal.add(Calendar.DAY_OF_WEEK, 6)
         val endYear = cal.get(Calendar.YEAR)
-        val endMonth = cal.get(Calendar.MONTH) + 1  // 표시용으로만 +1
+        val endMonth = cal.get(Calendar.MONTH) + 1
         val endDay = cal.get(Calendar.DAY_OF_MONTH)
         endDate = "$endYear-$endMonth-$endDay"
 
@@ -312,15 +167,12 @@ fun DateRangePickerWithAutoWeek(context: Context) {
             val startDatePickerDialog = android.app.DatePickerDialog(
                 context,
                 { _, selectedYear, selectedMonth, selectedDay ->
-                    // 날짜 선택 시 로그 출력
                     Log.d("DateRangePicker", "날짜 선택됨: $selectedYear-${selectedMonth + 1}-$selectedDay")
 
-                    // Calendar.set()에 선택한 날짜를 적용
                     year = selectedYear
                     month = selectedMonth
                     day = selectedDay
 
-                    // 주간 업데이트 호출
                     updateWeekRange(selectedYear, selectedMonth, selectedDay)
                     showStartDatePickerDialog = false
                 },
@@ -332,9 +184,151 @@ fun DateRangePickerWithAutoWeek(context: Context) {
     }
 }
 
+@Composable
+fun ToggleButtonCompose(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    text: String
+) {
+    IconToggleButton(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = Modifier.customButtonModifier(checked)
+    ) {
+        Text(
+            text = text,
+            color = if (checked) Color.Black else Color.White,
+            maxLines = 1,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+fun PeriodSelectionRow(
+    dayButton: Boolean,
+    weekButton: Boolean,
+    onButtonSelected: (Boolean) -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ToggleButtonCompose(
+            checked = dayButton,
+            onCheckedChange = { onButtonSelected(true) },
+            text = "일간"
+        )
+        ToggleButtonCompose(
+            checked = weekButton,
+            onCheckedChange = { onButtonSelected(false) },
+            text = "주간"
+        )
+    }
+}
+
+@Composable
+fun DateSelectionRow(dayButton: Boolean) {
+    val context = LocalContext.current
+
+    if (dayButton) {
+        SingleDatePicker(context)
+    } else {
+        DateRangePickerWithAutoWeek(context)
+    }
+}
+
+@Composable
+fun AudienceRangeSelectionRow(
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit
+) {
+    val options = Constants.ranges
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(options) { option ->
+            ToggleButtonCompose(
+                checked = selectedOption == option,
+                onCheckedChange = { onOptionSelected(option) },
+                text = option
+            )
+        }
+    }
+}
+
+@Composable
+fun SearchButton(selectedOption: String) {
+    Button(
+        onClick = {
+            Log.d("SearchButton", "검색 버튼 클릭됨, 선택된 옵션: $selectedOption")
+            // 검색 로직 추가 (예: API 호출)
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp)
+    ) {
+        Text(text = "검색")
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewMovieRankPage() {
     MovieRankPage()
+}
+
+@Composable
+fun MovieRankPage() {
+    var selectedOption by remember { mutableStateOf(Constants.ranges.first()) }
+    var dayButton by remember { mutableStateOf(true) }
+    var weekButton by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ToggleButtonCompose(
+                    checked = dayButton,
+                    onCheckedChange = { dayButton = true; weekButton = false },
+                    text = "일간"
+                )
+                ToggleButtonCompose(
+                    checked = weekButton,
+                    onCheckedChange = { dayButton = false; weekButton = true },
+                    text = "주간"
+                )
+            }
+
+            Row(
+                modifier = Modifier.padding(start = 0.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                DateSelectionRow(dayButton)
+            }
+
+            AudienceRangeSelectionRow(selectedOption) { option ->
+                selectedOption = option
+            }
+
+            SearchButton(selectedOption)
+        }
+    }
 }

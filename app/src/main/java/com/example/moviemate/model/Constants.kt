@@ -12,4 +12,5 @@ object API {
 object Constants {
     const val MOVIE_RANK = "Movie Rank"
     const val SEARCH = "Search"
+    val ranges = listOf("0~50만", "50~100만", "100~500만", "500~1000만", "1000만 이상")
 }
