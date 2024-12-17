@@ -1,6 +1,7 @@
 package com.example.moviemate.model
 
 import android.util.Log
+import com.example.moviemate.BuildConfig.API_KEY
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -12,33 +13,31 @@ class DailyData {
         val instance = DailyData()
         private const val TAG = "DailyData"
     }
+    fun getDailyData(
+        date: Int,
+        onSuccess: (List<DailyBoxOffice>) -> Unit,
+        onFailure: (Throwable) -> Unit
+    ) {
+        val call = RetrofitInstance.getClient()?.create(MyApi::class.java)?.getTargetDt(
+            apiKey = API_KEY,
+            targetDt = date
+        )
 
-    fun getDailyData(date: Int) {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(API.BASE_URL_KEY)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        val retrofitAPI = retrofit.create(MyApi::class.java)
-
-        val call: Call<List<DailyBoxOffice>> = retrofitAPI.getTargetDt(date)
-
-        call.enqueue(object : Callback<List<DailyBoxOffice>?> {
+        call?.enqueue(object : Callback<BoxOfficeResponse?> {
             override fun onResponse(
-                call: Call<List<DailyBoxOffice>?>,
-                response: Response<List<DailyBoxOffice>?>
+                call: Call<BoxOfficeResponse?>,
+                response: Response<BoxOfficeResponse?>
             ) {
                 if (response.isSuccessful) {
-                    val lst: List<DailyBoxOffice> = response.body() ?: ArrayList()
-
-                    Log.d(TAG, "Success: ${response.body()}")
+                    val boxOfficeList = response.body()?.boxOfficeResult?.dailyBoxOfficeList ?: emptyList()
+                    onSuccess(boxOfficeList)
                 } else {
-                    Log.e(TAG, "Response not successful: ${response.errorBody()}")
+                    onFailure(Throwable("Response not successful: ${response.errorBody()}"))
                 }
             }
 
-            override fun onFailure(call: Call<List<DailyBoxOffice>?>, t: Throwable) {
-                Log.e(TAG, "Failure: ${t.message}", t)
+            override fun onFailure(call: Call<BoxOfficeResponse?>, t: Throwable) {
+                onFailure(t)
             }
         })
     }

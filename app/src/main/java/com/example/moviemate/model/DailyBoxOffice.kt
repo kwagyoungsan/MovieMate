@@ -23,22 +23,17 @@ package com.example.moviemate.model
  * </dailyBoxOffice>
  */
 
+data class BoxOfficeResponse(
+    val boxOfficeResult: BoxOfficeResult
+)
+
+data class BoxOfficeResult(
+    val dailyBoxOfficeList: List<DailyBoxOffice>
+)
+
 data class DailyBoxOffice(
-    val rnum: Int,
-    val rank: Int,
-    val rankInten: Int,
-    val rankOldAndNew: Int,
-    val movieCd: Int,
+    val rank: String,
     val movieNm: String,
     val openDt: String,
-    val salesShare: Double,
-    val salesInten: Double,
-    val salesChange: Double,
-    val salesAcc: Int,
-    val audiCnt: Int,
-    val audiInten: Double,
-    val audiChange: Double,
-    val audiAcc: Int,
-    val scrnCnt: Int,
-    val showCnt: Int
+    val audiAcc: String
 )

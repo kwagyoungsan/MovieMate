@@ -5,10 +5,9 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface MyApi {
-    // http://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.xml?key=82ca741a2844c5c180a208137bb92bd7&targetDt=20120101
-    //(BASE_URL) + api_key + &targetDt=20120101
-    @GET(API.BASE_URL_KEY)
+    @GET("searchDailyBoxOfficeList.json")
     fun getTargetDt(
-        @Query("&targetDt=") targetDt: Int
-    ) :Call<List<DailyBoxOffice>>
+        @Query("key") apiKey: String,
+        @Query("targetDt") targetDt: Int
+    ): Call<BoxOfficeResponse>
 }
