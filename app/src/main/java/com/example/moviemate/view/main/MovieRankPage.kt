@@ -1,5 +1,7 @@
 package com.example.moviemate.view.main
 
+import SearchDailyResultPage
+import SearchWeeklyResultPage
 import android.content.Context
 import android.util.Log
 import androidx.compose.animation.animateColorAsState
@@ -377,11 +379,20 @@ fun MovieRankPage() {
 
             if (dayButton) {
                 searchDailyResults?.let { results ->
-                    SearchDailyResultPage(searchResults = results)
+                    SearchDailyResultPage(
+                        searchResults = results,
+                        onMovieClick = { selectedMovie ->
+                            Log.d(TAG, "선택한 영화: ${selectedMovie.movieNm}")
+                        })
                 }
             } else {
                 searchWeeklyResults?.let { results ->
-                    SearchWeeklyResultPage(searchResults = results)
+                    SearchWeeklyResultPage(
+                        searchResults = results,
+                        onMovieClick = { selectedMovie ->
+                            Log.d(TAG, "선택한 영화: ${selectedMovie.movieNm}")
+                            // 상세 페이지 이동 등 원하는 동작 추가
+                        })
                 }
             }
         }
