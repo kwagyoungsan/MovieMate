@@ -9,5 +9,12 @@ interface MyApi {
     fun getTargetDt(
         @Query("key") apiKey: String,
         @Query("targetDt") targetDt: Int
-    ): Call<BoxOfficeResponse>
+    ): Call<DailyBoxOfficeResponse>
+
+    @GET("searchWeeklyBoxOfficeList.json")
+    fun getRangeDt(
+        @Query("key") apiKey: String,
+        @Query("targetDt") targetDt: Int,
+        @Query("week") week: Int
+    ): Call<WeeklyBoxOfficeResponse>
 }

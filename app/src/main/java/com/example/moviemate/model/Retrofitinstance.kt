@@ -1,6 +1,5 @@
 package com.example.moviemate.model
 
-import com.example.moviemate.model.API.BASE_URL_KEY
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

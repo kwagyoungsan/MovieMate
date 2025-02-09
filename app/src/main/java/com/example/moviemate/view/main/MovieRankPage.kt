@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -20,13 +19,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.moviemate.model.Constants
 import com.example.moviemate.model.DailyBoxOffice
 import com.example.moviemate.model.DailyData
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.moviemate.model.WeeklyBoxOffice
+import com.example.moviemate.model.WeeklyData
 import java.util.Calendar
+
+const val TAG = "MovieRankPage"
 
 // Spacer for consistent spacing
 @Composable
@@ -37,7 +36,9 @@ fun Spacer(num: Int) {
 // Single Date Picker
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SingleDatePicker(context: Context) {
+fun SingleDatePicker(
+    context: Context,
+    onDateSelected: (String) -> Unit) {
     var selectedDate by remember { mutableStateOf("") }
     var showDatePickerDialog by remember { mutableStateOf(false) }
     val calendar = Calendar.getInstance()
@@ -68,7 +69,12 @@ fun SingleDatePicker(context: Context) {
             val datePickerDialog = android.app.DatePickerDialog(
                 context,
                 { _, selectedYear, selectedMonth, selectedDay ->
-                    selectedDate = "$selectedYear-${selectedMonth + 1}-$selectedDay"
+                    val formattedDate = String.format(
+                        "%04d-%02d-%02d",
+                        selectedYear, selectedMonth + 1, selectedDay
+                    )
+                    selectedDate = formattedDate
+                    onDateSelected(formattedDate.replace("-", "")) // API용 포맷 전달
                     showDatePickerDialog = false
                 },
                 year, month, day
@@ -81,10 +87,15 @@ fun SingleDatePicker(context: Context) {
 // Date Range Picker with Week Auto-Calculation
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DateRangePickerWithAutoWeek(context: Context) {
+fun DateRangePickerWithAutoWeek(
+    context: Context,
+    onDateSelected: (String) -> Unit,
+    onRangeSelected: (String, String) -> Unit // 시작일과 종료일 전달
+) {
     var startDate by remember { mutableStateOf("") }
     var endDate by remember { mutableStateOf("") }
     var showStartDatePickerDialog by remember { mutableStateOf(false) }
+    var selectedDate by remember { mutableStateOf("") }
     val calendar = Calendar.getInstance()
 
     val year = calendar.get(Calendar.YEAR)
@@ -95,38 +106,44 @@ fun DateRangePickerWithAutoWeek(context: Context) {
         val cal = Calendar.getInstance()
         cal.set(selectedYear, selectedMonth, selectedDay)
 
-        // Calculate start and end of the week
+        val formattedDate = String.format(
+            "%04d-%02d-%02d",
+            selectedYear, selectedMonth + 1, selectedDay
+        )
+        selectedDate = formattedDate
+        onDateSelected(formattedDate.replace("-", ""))
+
+        // 시작일 계산
         cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
         val startYear = cal.get(Calendar.YEAR)
         val startMonth = cal.get(Calendar.MONTH) + 1
         val startDay = cal.get(Calendar.DAY_OF_MONTH)
-        startDate = "$startYear-$startMonth-$startDay"
+        startDate = String.format("%04d%02d%02d", startYear, startMonth, startDay)
 
+        // 종료일 계산
         cal.add(Calendar.DAY_OF_WEEK, 6)
         val endYear = cal.get(Calendar.YEAR)
         val endMonth = cal.get(Calendar.MONTH) + 1
         val endDay = cal.get(Calendar.DAY_OF_MONTH)
-        endDate = "$endYear-$endMonth-$endDay"
+        endDate = String.format("%04d%02d%02d", endYear, endMonth, endDay)
+
+        onRangeSelected(startDate, endDate) // 상위로 전달
     }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp), // Fixed height
+            .height(48.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Button(
             onClick = { showStartDatePickerDialog = true },
             modifier = Modifier
                 .height(48.dp)
-                .width(200.dp) // Fixed width
+                .width(200.dp)
         ) {
             Text(
-                text = if (startDate.isEmpty() && endDate.isEmpty()) {
-                    "기간 선택"
-                } else {
-                    "$startDate ~ $endDate"
-                },
+                text = if (startDate.isEmpty() && endDate.isEmpty()) "기간 선택" else "$startDate ~ $endDate",
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -203,21 +220,26 @@ fun PeriodSelectionRow(
 
 // Date Selection Row
 @Composable
-fun DateSelectionRow(dayButton: Boolean) {
+fun DateSelectionRow(
+    dayButton: Boolean,
+    onDateSelected: (String) -> Unit, // 일간 날짜 전달
+    onRangeSelected: (String, String) -> Unit // 주간 범위 전달
+) {
     val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp), // Fixed height
+            .height(48.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (dayButton) {
-            SingleDatePicker(context)
+            SingleDatePicker(context = context, onDateSelected = onDateSelected)
         } else {
-            DateRangePickerWithAutoWeek(context)
+            DateRangePickerWithAutoWeek(context = context, onDateSelected = onDateSelected, onRangeSelected = onRangeSelected)
         }
     }
 }
+
 
 // Audience Range Selection
 @Composable
@@ -246,10 +268,15 @@ fun AudienceRangeSelectionRow(
 @Composable
 fun MovieRankPage() {
     val dailyData = DailyData.instance
-    var searchResults by remember { mutableStateOf<List<DailyBoxOffice>?>(null) }
+    val weeklyData = WeeklyData.instance
+    var searchDailyResults by remember { mutableStateOf<List<DailyBoxOffice>?>(null) }
+    var searchWeeklyResults by remember { mutableStateOf<List<WeeklyBoxOffice>?>(null) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    val targetDate = 20241214 // API 요청 날짜
+    var targetDate by remember { mutableStateOf("") } // 단일 날짜
+    var startDate by remember { mutableStateOf("") } // 주간 시작일
+    var endDate by remember { mutableStateOf("") } // 주간 종료일
+    var dayButton by remember { mutableStateOf(true) } // 일간/주간 상태
 
     Box(
         modifier = Modifier
@@ -260,42 +287,72 @@ fun MovieRankPage() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp), // 간격 일정하게 유지
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            // 기존 UI - 일간/주간 선택
+            // 일간/주간 선택 버튼
             PeriodSelectionRow(
-                dayButton = true,
-                weekButton = false
-            ) { /* 일간/주간 버튼 상태 관리 로직 */ }
+                dayButton = dayButton,
+                weekButton = !dayButton,
+                onButtonSelected = { isDaySelected ->
+                    dayButton = isDaySelected
+                }
+            )
 
-            // 기존 UI - 날짜 선택
-            DateSelectionRow(dayButton = true)
+            // 날짜 선택 UI
+            DateSelectionRow(
+                dayButton = dayButton,
+                onDateSelected = { selectedDate ->
+                    targetDate = selectedDate.replace("-", "") // 일간 날짜 포맷
+                },
+                onRangeSelected = { start, end ->
+                    startDate = start
+                    endDate = end // 주간 날짜 포맷
+                }
+            )
 
-            // 기존 UI - 관객 수 범위 선택
+            // 관객 수 범위 선택
             AudienceRangeSelectionRow(
                 selectedOption = "0~50만"
-            ) { /* 관객 수 범위 선택 상태 관리 로직 */ }
+            ) { /* 관객 수 범위 선택 로직 */ }
 
             // 검색 버튼
             Button(
                 onClick = {
                     isLoading = true
                     errorMessage = null
-                    searchResults = null
+                    searchDailyResults = null
+                    searchWeeklyResults = null
 
                     // API 호출
-                    dailyData.getDailyData(
-                        date = targetDate,
-                        onSuccess = { results ->
-                            searchResults = results
-                            isLoading = false
-                        },
-                        onFailure = { error ->
-                            errorMessage = error.message
-                            isLoading = false
-                        }
-                    )
+                    if (dayButton) {
+                        Log.d(TAG, "일간 검색: $targetDate")
+                        dailyData.getDailyData(
+                            date = targetDate.toIntOrNull() ?: 0,
+                            onSuccess = { results ->
+                                searchDailyResults = results
+                                isLoading = false
+                            },
+                            onFailure = { error ->
+                                errorMessage = error.message
+                                isLoading = false
+                            }
+                        )
+                    } else {
+                        Log.d(TAG, "주간 검색: $startDate ~ $endDate")
+                        Log.d(TAG, "클릭한 날짜: $targetDate")
+                        weeklyData.getWeeklyData(
+                            date = targetDate.toIntOrNull() ?: 0,
+                            onSuccess = { results ->
+                                searchWeeklyResults = results
+                                isLoading = false
+                            },
+                            onFailure = { error ->
+                                errorMessage = error.message
+                                isLoading = false
+                            }
+                        )
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -304,12 +361,12 @@ fun MovieRankPage() {
                 Text("검색")
             }
 
-            // 로딩 상태 표시
+            // 로딩 상태
             if (isLoading) {
                 Text("로딩 중...", style = MaterialTheme.typography.bodyMedium)
             }
 
-            // 에러 메시지 표시
+            // 에러 메시지
             errorMessage?.let {
                 Text(
                     text = it,
@@ -318,17 +375,18 @@ fun MovieRankPage() {
                 )
             }
 
-            // 검색 결과 표시 (검색 버튼 아래)
-            searchResults?.let { results ->
-                SearchResultPage(searchResults = results)
+            if (dayButton) {
+                searchDailyResults?.let { results ->
+                    SearchDailyResultPage(searchResults = results)
+                }
+            } else {
+                searchWeeklyResults?.let { results ->
+                    SearchWeeklyResultPage(searchResults = results)
+                }
             }
         }
     }
 }
-
-
-
-
 
 @Preview(showBackground = true)
 @Composable

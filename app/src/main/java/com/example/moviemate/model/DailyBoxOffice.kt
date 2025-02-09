@@ -23,17 +23,19 @@ package com.example.moviemate.model
  * </dailyBoxOffice>
  */
 
-data class BoxOfficeResponse(
-    val boxOfficeResult: BoxOfficeResult
-)
-
-data class BoxOfficeResult(
-    val dailyBoxOfficeList: List<DailyBoxOffice>
-)
-
+//TODO rankOldAndNew 추가해서 New 일 경우 뱃지 추가
 data class DailyBoxOffice(
     val rank: String,
     val movieNm: String,
     val openDt: String,
     val audiAcc: String
 )
+
+data class DailyBoxOfficeResponse(
+    val boxOfficeResult: DailyBoxOfficeResult
+)
+
+data class DailyBoxOfficeResult(
+    val dailyBoxOfficeList: List<DailyBoxOffice>
+)
+

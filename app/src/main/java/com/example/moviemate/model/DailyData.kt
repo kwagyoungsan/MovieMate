@@ -5,14 +5,13 @@ import com.example.moviemate.BuildConfig.API_KEY
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class DailyData {
     companion object {
         val instance = DailyData()
         private const val TAG = "DailyData"
     }
+
     fun getDailyData(
         date: Int,
         onSuccess: (List<DailyBoxOffice>) -> Unit,
@@ -23,12 +22,15 @@ class DailyData {
             targetDt = date
         )
 
-        call?.enqueue(object : Callback<BoxOfficeResponse?> {
+        Log.d(TAG, "API 요청 URL: ${call?.request()?.url}")
+
+        call?.enqueue(object : Callback<DailyBoxOfficeResponse?> {
             override fun onResponse(
-                call: Call<BoxOfficeResponse?>,
-                response: Response<BoxOfficeResponse?>
+                call: Call<DailyBoxOfficeResponse?>,
+                response: Response<DailyBoxOfficeResponse?>
             ) {
                 if (response.isSuccessful) {
+                    Log.d(TAG, "Success date: $date")
                     val boxOfficeList = response.body()?.boxOfficeResult?.dailyBoxOfficeList ?: emptyList()
                     onSuccess(boxOfficeList)
                 } else {
@@ -36,7 +38,7 @@ class DailyData {
                 }
             }
 
-            override fun onFailure(call: Call<BoxOfficeResponse?>, t: Throwable) {
+            override fun onFailure(call: Call<DailyBoxOfficeResponse?>, t: Throwable) {
                 onFailure(t)
             }
         })
