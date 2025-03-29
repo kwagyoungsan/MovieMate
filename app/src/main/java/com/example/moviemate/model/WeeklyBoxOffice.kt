@@ -88,7 +88,6 @@ package com.example.moviemate.model
  *       },
  */
 
-//TODO rankOldAndNew 추가해서 New일 경우 뱃지 추가
 data class WeeklyBoxOffice(
     val rank: String,
     val movieNm: String,

@@ -39,8 +39,8 @@ fun SearchDailyResultPage(
             .padding(16.dp)
     ) {
         Text(
-            text = "검색 결과",
-            style = MaterialTheme.typography.titleLarge
+            text = "영화 클릭 시 상세 정보를 확인할 수 있습니다.",
+            style = MaterialTheme.typography.titleMedium
         )
 
         LazyColumn(
@@ -105,8 +105,8 @@ fun SearchWeeklyResultPage(
             .padding(16.dp)
     ) {
         Text(
-            text = "검색 결과",
-            style = MaterialTheme.typography.titleLarge
+            text = "영화 클릭 시 상세 정보를 확인할 수 있습니다.",
+            style = MaterialTheme.typography.titleMedium
         )
 
         LazyColumn(

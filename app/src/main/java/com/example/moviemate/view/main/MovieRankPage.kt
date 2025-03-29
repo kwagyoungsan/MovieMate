@@ -361,7 +361,12 @@ fun MovieRankPage(navController: NavController) {
                 )
             } else {
                 searchWeeklyResults?.let { results ->
-                    SearchWeeklyResultPage(searchResults = results)
+                    SearchWeeklyResultPage(
+                        searchResults = results,
+                        onMovieClick = { selectedMovie ->
+                            Log.d(TAG, "선택한 영화: ${selectedMovie.movieNm}")
+                            // 상세 페이지 이동 등 원하는 동작 추가
+                        })
                 }
             }
         }
