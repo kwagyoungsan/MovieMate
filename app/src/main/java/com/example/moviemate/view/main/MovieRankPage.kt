@@ -353,20 +353,22 @@ fun MovieRankPage(navController: NavController) {
             }
 
             if (dayButton) {
-                SearchDailyResultPage(
-                    searchResults = results,
-                    onMovieClick = { movieCd ->
-                        navController.navigate("detail/$movieCd")
-                    }
-                )
+                searchDailyResults?.let { results ->
+                    SearchDailyResultPage(
+                        searchResults = results,
+                        onMovieClick = { movieCd ->
+                            navController.navigate("detail/$movieCd")
+                        }
+                    )
+                }
             } else {
                 searchWeeklyResults?.let { results ->
                     SearchWeeklyResultPage(
                         searchResults = results,
-                        onMovieClick = { selectedMovie ->
-                            Log.d(TAG, "선택한 영화: ${selectedMovie.movieNm}")
-                            // 상세 페이지 이동 등 원하는 동작 추가
-                        })
+                        onMovieClick = { movieCd ->
+                            navController.navigate("detail/$movieCd")
+                        }
+                    )
                 }
             }
         }
@@ -376,5 +378,6 @@ fun MovieRankPage(navController: NavController) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewMovieRankPage() {
-    MovieRankPage()
+    val navController = androidx.navigation.compose.rememberNavController()
+    MovieRankPage(navController = navController)
 }
