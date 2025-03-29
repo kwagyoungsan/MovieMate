@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.MovieMate" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.MovieMate.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/black</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="windowSplashScreenIconBackgroundColor">@null</item>
+        <item name="postSplashScreenTheme">@style/Theme.MovieMate</item>
+    </style>
+
+    <!-- 실제 앱 테마 -->
+    <style name="Theme.MovieMate" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- 추가 설정 가능 -->
+    </style>
 </resources>

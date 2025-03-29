@@ -93,7 +93,8 @@ data class WeeklyBoxOffice(
     val rank: String,
     val movieNm: String,
     val openDt: String,
-    val audiAcc: String
+    val audiAcc: String,
+    val rankOldAndNew: String
 )
 
 data class WeeklyBoxOfficeResponse(

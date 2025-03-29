@@ -2,6 +2,7 @@ package com.example.moviemate.view.main
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.moviemate.model.DailyBoxOffice
 import com.example.moviemate.model.DailyData
 import com.example.moviemate.model.WeeklyBoxOffice
@@ -26,12 +28,6 @@ import com.example.moviemate.model.WeeklyData
 import java.util.Calendar
 
 const val TAG = "MovieRankPage"
-
-// Spacer for consistent spacing
-@Composable
-fun Spacer(num: Int) {
-    Spacer(modifier = Modifier.height(num.dp))
-}
 
 // Single Date Picker
 @OptIn(ExperimentalMaterial3Api::class)
@@ -240,33 +236,9 @@ fun DateSelectionRow(
     }
 }
 
-
-// Audience Range Selection
-@Composable
-fun AudienceRangeSelectionRow(
-    selectedOption: String,
-    onOptionSelected: (String) -> Unit
-) {
-    val options = listOf("0~50만", "50~100만", "100~500만", "500~1000만", "1000만 이상")
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(options) { option ->
-            ToggleButtonCompose(
-                checked = selectedOption == option,
-                onCheckedChange = { onOptionSelected(option) },
-                text = option
-            )
-        }
-    }
-}
-
 // Main Page
 @Composable
-fun MovieRankPage() {
+fun MovieRankPage(navController: NavController) {
     val dailyData = DailyData.instance
     val weeklyData = WeeklyData.instance
     var searchDailyResults by remember { mutableStateOf<List<DailyBoxOffice>?>(null) }
@@ -277,6 +249,7 @@ fun MovieRankPage() {
     var startDate by remember { mutableStateOf("") } // 주간 시작일
     var endDate by remember { mutableStateOf("") } // 주간 종료일
     var dayButton by remember { mutableStateOf(true) } // 일간/주간 상태
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -311,11 +284,6 @@ fun MovieRankPage() {
                 }
             )
 
-            // 관객 수 범위 선택
-            AudienceRangeSelectionRow(
-                selectedOption = "0~50만"
-            ) { /* 관객 수 범위 선택 로직 */ }
-
             // 검색 버튼
             Button(
                 onClick = {
@@ -323,6 +291,15 @@ fun MovieRankPage() {
                     errorMessage = null
                     searchDailyResults = null
                     searchWeeklyResults = null
+
+                    if (dayButton && targetDate.isBlank()) {
+                        Toast.makeText(context, "날짜를 선택해주세요", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                    if (!dayButton && (startDate.isBlank() || endDate.isBlank())) {
+                        Toast.makeText(context, "기간을 선택해주세요", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
 
                     // API 호출
                     if (dayButton) {
@@ -376,9 +353,12 @@ fun MovieRankPage() {
             }
 
             if (dayButton) {
-                searchDailyResults?.let { results ->
-                    SearchDailyResultPage(searchResults = results)
-                }
+                SearchDailyResultPage(
+                    searchResults = results,
+                    onMovieClick = { movieCd ->
+                        navController.navigate("detail/$movieCd")
+                    }
+                )
             } else {
                 searchWeeklyResults?.let { results ->
                     SearchWeeklyResultPage(searchResults = results)

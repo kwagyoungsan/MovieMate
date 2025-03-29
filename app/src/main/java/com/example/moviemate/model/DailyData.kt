@@ -33,6 +33,7 @@ class DailyData {
                     Log.d(TAG, "Success date: $date")
                     val boxOfficeList = response.body()?.boxOfficeResult?.dailyBoxOfficeList ?: emptyList()
                     onSuccess(boxOfficeList)
+                    Log.d(TAG, "boxOfficeList: $boxOfficeList")
                 } else {
                     onFailure(Throwable("Response not successful: ${response.errorBody()}"))
                 }
