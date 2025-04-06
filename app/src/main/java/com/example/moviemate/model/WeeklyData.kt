@@ -21,7 +21,7 @@ class WeeklyData {
         val call = RetrofitInstance.getClient()?.create(MyApi::class.java)?.getRangeDt(
             apiKey = API_KEY,
             targetDt = date,
-            week = 0
+            weekGb = 0
             /**
              * 0 : 주간(월 ~ 일)
              * 1 : 주말 (금 ~ 일)
@@ -37,12 +37,22 @@ class WeeklyData {
                 response: Response<WeeklyBoxOfficeResponse?>
             ) {
                 if (response.isSuccessful) {
-                    Log.d(TAG, "Success date: $date")
-                    val boxOfficeList = response.body()?.boxOfficeResult?.boxOfficeList ?: emptyList()
-                    onSuccess(boxOfficeList)
-                    Log.d(TAG, "boxOfficeList size: ${boxOfficeList.size}")
+                    val responseBody = response.body()
+
+                    if (responseBody?.boxOfficeResult != null) {  // ✅ Null 체크 추가
+                        val boxOfficeList = responseBody.boxOfficeResult.weeklyBoxOfficeList
+                            ?: emptyList()
+                        Log.d(TAG, "boxOfficeList size: ${boxOfficeList.size}")
+                        Log.d(TAG, "원본 응답: ${responseBody.toString()}")  // ✅ 원본 응답을 로그로 출력
+                        onSuccess(boxOfficeList)
+                    } else {
+                        Log.e(TAG, "Response Body or BoxOfficeResult is null")
+                        onFailure(Throwable("Response Body or BoxOfficeResult is null"))
+                    }
                 } else {
-                    onFailure(Throwable("Response not successful: ${response.errorBody()}"))
+                    val errorBody = response.errorBody()?.string()
+                    Log.e(TAG, "Response not successful: $errorBody")
+                    onFailure(Throwable("Response not successful: $errorBody"))
                 }
             }
 

@@ -116,22 +116,47 @@ fun SearchWeeklyResultPage(
                 .padding(top = 8.dp)
         ) {
             items(searchResults) { movie ->
+                val rankOldAndNew = movie.rankOldAndNew == "NEW"
+                Log.d("DEBUG", "Movie: ${movie.movieNm}, rankOldAndNew: ${movie.rankOldAndNew}")  // ✅ 로그 추가
+
                 Card(
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { onMovieClick(movie.movieCd) }
                 ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(
-                            text = "${movie.rank}위. ${movie.movieNm}",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text("개봉일: ${movie.openDt}", style = MaterialTheme.typography.bodySmall)
-                        Text("누적 관객수: ${movie.audiAcc}", style = MaterialTheme.typography.bodySmall)
+                    Row(
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                text = "${movie.rank}위. ${movie.movieNm}",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text("개봉일: ${movie.openDt}", style = MaterialTheme.typography.bodySmall)
+                            Text("누적 관객수: ${movie.audiAcc}", style = MaterialTheme.typography.bodySmall)
+                        }
+
+                        if (rankOldAndNew) {
+                            Box(
+                                modifier = Modifier
+                                    .border(1.dp, Color.Red, shape = RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("NEW", color = Color.Red, style = MaterialTheme.typography.labelMedium)
+                            }
+                        }
                     }
                 }
             }
         }
     }
 }
+

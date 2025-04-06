@@ -102,5 +102,5 @@ data class WeeklyBoxOfficeResponse(
 )
 
 data class WeeklyBoxOfficeResult(
-    val boxOfficeList: List<WeeklyBoxOffice>
+    val weeklyBoxOfficeList: List<WeeklyBoxOffice>
 )

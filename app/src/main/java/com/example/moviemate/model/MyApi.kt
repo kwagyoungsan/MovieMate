@@ -15,6 +15,6 @@ interface MyApi {
     fun getRangeDt(
         @Query("key") apiKey: String,
         @Query("targetDt") targetDt: Int,
-        @Query("week") week: Int
+        @Query("weekGb") weekGb: Int
     ): Call<WeeklyBoxOfficeResponse>
 }
