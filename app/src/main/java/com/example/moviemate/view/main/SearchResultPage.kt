@@ -27,12 +27,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Divider
 
+
+import androidx.compose.foundation.isSystemInDarkTheme
 
 @Composable
 fun SearchDailyResultPage(
     searchResults: List<DailyBoxOffice>,
-    onMovieClick: (String) -> Unit) {
+    onMovieClick: (String) -> Unit
+) {
+    val backgroundColor = if (isSystemInDarkTheme()) Color.Black else Color.White // ✅ 정확한 배경 색상 지정
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -44,7 +50,7 @@ fun SearchDailyResultPage(
         )
 
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(0.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)
@@ -54,40 +60,45 @@ fun SearchDailyResultPage(
 
                 Card(
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
+                    colors = CardDefaults.cardColors(containerColor = backgroundColor), // ✅ 배경 색상 직접 설정
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { onMovieClick(movie.movieCd) }
                 ) {
-                    Row(
+                    Column(
                         modifier = Modifier
+                            .fillMaxWidth()
                             .padding(12.dp)
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Column {
-                            Text(
-                                text = "${movie.rank}위. ${movie.movieNm}",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text("개봉일: ${movie.openDt}", style = MaterialTheme.typography.bodySmall)
-                            Text("누적 관객수: ${movie.audiAcc}", style = MaterialTheme.typography.bodySmall)
-                        }
-
                         if (rankOldAndNew) {
                             Box(
                                 modifier = Modifier
                                     .border(1.dp, Color.Red, shape = RoundedCornerShape(6.dp))
-                                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                                contentAlignment = Alignment.Center
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
                             ) {
-                                Text("NEW", color = Color.Red, style = MaterialTheme.typography.labelMedium)
+                                Text(
+                                    text = "NEW",
+                                    color = Color.Red,
+                                    style = MaterialTheme.typography.labelMedium
+                                )
                             }
+                            Spacer(modifier = Modifier.height(4.dp))
                         }
+
+                        Text(
+                            text = "${movie.rank}위. ${movie.movieNm}",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("개봉일: ${movie.openDt}", style = MaterialTheme.typography.bodySmall)
+                        Text("누적 관객수: ${movie.audiAcc}", style = MaterialTheme.typography.bodySmall)
                     }
                 }
+                Divider(
+                    color = Color.Gray,
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
             }
         }
     }
