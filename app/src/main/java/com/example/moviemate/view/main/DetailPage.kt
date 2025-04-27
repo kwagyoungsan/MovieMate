@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.moviemate.R
+import com.example.moviemate.util.formatDate
 import com.example.moviemate.viewmodel.DetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,7 +77,7 @@ fun DetailPage(
                         Text("🎬 영화명: ${detailInfo?.movieNm ?: "정보 없음"}")
                         Text("📅 제작년도: ${detailInfo?.prdtYear ?: "정보 없음"}")
                         Text("⏱️ 상영시간: ${detailInfo?.showTm ?: "정보 없음"} 분")
-                        Text("📅 개봉일: ${detailInfo?.openDt ?: "정보 없음"}")
+                        Text("📅 개봉일: ${detailInfo?.openDt?.let { formatDate(it) } ?: "정보 없음"}")
                         Text("🎥 제작상태: ${detailInfo?.prdtStatNm ?: "정보 없음"}")
 
                         // List 타입들도 안전하게

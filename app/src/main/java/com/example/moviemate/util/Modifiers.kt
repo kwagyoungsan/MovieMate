@@ -1,4 +1,4 @@
-package com.example.moviemate.model
+package com.example.moviemate.util
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

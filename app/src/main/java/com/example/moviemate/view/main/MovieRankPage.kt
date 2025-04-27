@@ -6,8 +6,6 @@ import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -21,9 +19,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.moviemate.model.DailyBoxOffice
+import com.example.moviemate.model.response.DailyBoxOffice
 import com.example.moviemate.model.DailyData
-import com.example.moviemate.model.WeeklyBoxOffice
+import com.example.moviemate.model.response.WeeklyBoxOffice
 import com.example.moviemate.model.WeeklyData
 import java.util.Calendar
 

@@ -21,16 +21,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.moviemate.model.DailyBoxOffice
-import com.example.moviemate.model.WeeklyBoxOffice
+import com.example.moviemate.model.response.DailyBoxOffice
+import com.example.moviemate.model.response.WeeklyBoxOffice
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
 
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import com.example.moviemate.util.formatDate
 
 @Composable
 fun SearchDailyResultPage(
@@ -90,7 +89,7 @@ fun SearchDailyResultPage(
                             style = MaterialTheme.typography.titleMedium
                         )
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("개봉일: ${movie.openDt}", style = MaterialTheme.typography.bodySmall)
+                        Text("개봉일: ${formatDate(movie.openDt)}", style = MaterialTheme.typography.bodySmall)
                         Text("누적 관객수: ${movie.audiAcc}", style = MaterialTheme.typography.bodySmall)
                     }
                 }
@@ -150,7 +149,7 @@ fun SearchWeeklyResultPage(
                                 style = MaterialTheme.typography.titleMedium
                             )
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("개봉일: ${movie.openDt}", style = MaterialTheme.typography.bodySmall)
+                            Text("개봉일: ${formatDate(movie.openDt)}", style = MaterialTheme.typography.bodySmall)
                             Text("누적 관객수: ${movie.audiAcc}", style = MaterialTheme.typography.bodySmall)
                         }
 

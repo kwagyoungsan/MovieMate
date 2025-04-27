@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.moviemate.BuildConfig
-import com.example.moviemate.model.DetailInfo
-import com.example.moviemate.model.DetailInfoResponse
+import com.example.moviemate.model.response.DetailInfo
+import com.example.moviemate.model.response.DetailInfoResponse
 import com.example.moviemate.model.MyApi
 import com.example.moviemate.model.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow

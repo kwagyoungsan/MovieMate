@@ -2,6 +2,8 @@ package com.example.moviemate.model
 
 import android.util.Log
 import com.example.moviemate.BuildConfig.API_KEY
+import com.example.moviemate.model.response.DailyBoxOffice
+import com.example.moviemate.model.response.DailyBoxOfficeResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

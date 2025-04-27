@@ -1,4 +1,4 @@
-package com.example.moviemate.model
+package com.example.moviemate.model.response
 
 /**
  * <dailyBoxOffice>

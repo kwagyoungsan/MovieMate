@@ -1,4 +1,4 @@
-package com.example.moviemate.model
+package com.example.moviemate.model.response
 
 /**
  * movieCd		영화코드를 출력합니다.
