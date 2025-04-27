@@ -17,4 +17,10 @@ interface MyApi {
         @Query("targetDt") targetDt: Int,
         @Query("weekGb") weekGb: Int
     ): Call<WeeklyBoxOfficeResponse>
+
+    @GET("searchMovieInfo.json")
+    fun getDetailInfo(
+        @Query("key") apiKey: String,
+        @Query("movieCd") movieCd: Int,
+    ): Call<DetailInfoResponse>
 }

@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
     private var retrofitClient: Retrofit? = null
+    private var movieInfoRetrofit: Retrofit? = null
 
     fun getClient(): Retrofit? {
         if (retrofitClient == null) {
@@ -17,5 +18,15 @@ object RetrofitInstance {
                 .build()
         }
         return retrofitClient
+    }
+
+    fun getMovieInfo(): Retrofit? {
+        if (movieInfoRetrofit == null) {
+            movieInfoRetrofit = Retrofit.Builder()
+                .baseUrl("http://kobis.or.kr/kobisopenapi/webservice/rest/movie/") // Base URL
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+        }
+        return movieInfoRetrofit
     }
 }
