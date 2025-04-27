@@ -1,4 +1,4 @@
-package com.example.moviemate.model
+package com.example.moviemate.util
 
 import com.example.moviemate.BuildConfig
 
@@ -8,8 +8,8 @@ object API {
     const val BASE_URL_DAILY = "http://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key="
     const val BASE_URL_WEEKLY = "http://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchWeeklyBoxOfficeList.json?key="
 
-    const val BASE_URL_KEY_DAILY = "${BASE_URL_DAILY}${apiKey}"
-    const val BASE_URL_KEY_WEEKLY = "${BASE_URL_WEEKLY}${apiKey}"
+    const val BASE_URL_KEY_DAILY = "$BASE_URL_DAILY$apiKey"
+    const val BASE_URL_KEY_WEEKLY = "$BASE_URL_WEEKLY$apiKey"
 }
 
 object Constants {

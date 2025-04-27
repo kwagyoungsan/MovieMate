@@ -13,11 +13,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -34,9 +30,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.moviemate.R
-import com.example.moviemate.model.Constants.MOVIE_RANK
-import com.example.moviemate.model.Constants.SEARCH
-import kotlinx.coroutines.delay
+import com.example.moviemate.util.Constants.MOVIE_RANK
+import com.example.moviemate.util.Constants.SEARCH
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,10 +48,17 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreenView() {
     val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     Scaffold(
-        bottomBar = { BottomNavigation(navController = navController) }
+        bottomBar = {
+            if (currentRoute != "detail/{movieCd}") {
+                BottomNavigation(navController = navController)
+            }
+        }
     ) {
-        Box(Modifier.padding(it)){
+        Box(Modifier.padding(it)) {
             NavigationGraph(navController = navController)
         }
     }
@@ -66,7 +68,7 @@ fun MainScreenView() {
 fun NavigationGraph(navController: NavHostController) {
     NavHost(navController = navController, startDestination = BottomNavItem.MovieRank.screenRoute) {
         composable(BottomNavItem.MovieRank.screenRoute) {
-            MovieRankPage(navController = navController) // navController 전달
+            MovieRankPage(navController = navController)
         }
         composable(BottomNavItem.Search.screenRoute) {
             SearchPage()
@@ -76,10 +78,11 @@ fun NavigationGraph(navController: NavHostController) {
             arguments = listOf(navArgument("movieCd") { type = NavType.StringType })
         ) { backStackEntry ->
             val movieCd = backStackEntry.arguments?.getString("movieCd") ?: ""
-            DetailPage(movieCd = movieCd)
+            DetailPage(movieCd = movieCd, navController = navController) // ✅ navController 넘겨줘야 함
         }
     }
 }
+
 
 @Composable
 fun BottomNavigation(navController: NavHostController) {
