@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.moviemate.view.MovieSearchResult
 import com.example.moviemate.util.UiState
@@ -24,7 +25,7 @@ import com.example.moviemate.viewmodel.SearchViewModel
 @Composable
 fun SearchPage(
     navController: NavController,
-    viewModel: SearchViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: SearchViewModel = hiltViewModel()
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("선택") }

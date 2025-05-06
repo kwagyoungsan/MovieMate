@@ -93,4 +93,7 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp")
     implementation ("com.squareup.okhttp3:logging-interceptor")
     implementation("androidx.core:core-splashscreen:1.0.1")
+
+    // Hilt
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 }

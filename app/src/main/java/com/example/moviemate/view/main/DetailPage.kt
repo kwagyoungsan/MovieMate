@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.moviemate.R
 import com.example.moviemate.util.UiState
@@ -38,7 +39,7 @@ import com.example.moviemate.viewmodel.DetailViewModel
 fun DetailPage(
     movieCd: String,
     navController: NavController,
-    viewModel: DetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: DetailViewModel = hiltViewModel()
 ) {
     val detailState by viewModel.detailState.collectAsState()
 

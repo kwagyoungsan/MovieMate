@@ -6,10 +6,13 @@ import com.example.moviemate.model.response.WeeklyBoxOffice
 import com.example.moviemate.repository.MovieRankRepository
 import com.example.moviemate.repository.MovieRankRepositoryImpl
 import com.example.moviemate.util.UiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import javax.inject.Inject
 
-class MovieRankViewModel(
+@HiltViewModel
+class MovieRankViewModel @Inject constructor(
     private val repository: MovieRankRepository = MovieRankRepositoryImpl()
 ) : ViewModel() {
 

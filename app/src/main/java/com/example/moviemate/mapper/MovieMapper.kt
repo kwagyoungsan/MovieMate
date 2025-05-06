@@ -3,7 +3,7 @@ package com.example.moviemate.mapper
 import com.example.moviemate.view.MovieSearchResult
 import com.example.moviemate.model.response.Movie
 
-fun Movie.toSearchResult(): MovieSearchResult = MovieSearchResult(
+fun Movie.toResult(): MovieSearchResult = MovieSearchResult(
     movieCd = this.movieCd,
     movieNm = this.movieNm,
     prdtYear = this.prdtYear,

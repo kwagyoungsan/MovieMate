@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.moviemate.model.response.DailyBoxOffice
 import com.example.moviemate.model.response.WeeklyBoxOffice
@@ -238,7 +239,7 @@ fun DateSelectionRow(
 @Composable
 fun MovieRankPage(
     navController: NavController,
-    viewModel: MovieRankViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: MovieRankViewModel = hiltViewModel()
 ) {
     val dailyState by viewModel.dailyState.collectAsState()
     val weeklyState by viewModel.weeklyState.collectAsState()

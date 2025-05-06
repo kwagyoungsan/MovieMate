@@ -7,10 +7,13 @@ import com.example.moviemate.repository.DetailRepository
 import com.example.moviemate.repository.DetailRepositoryImpl
 import com.example.moviemate.util.UiState
 import com.example.moviemate.view.MovieDetail
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import javax.inject.Inject
 
-class DetailViewModel(
+@HiltViewModel
+class DetailViewModel @Inject constructor(
     private val repository: DetailRepository = DetailRepositoryImpl(
         RetrofitInstance.getMovieInfo()!!.create(MyApi::class.java)
     )

@@ -1,7 +1,7 @@
 package com.example.moviemate.repository
 
 import com.example.moviemate.BuildConfig
-import com.example.moviemate.mapper.toSearchResult
+import com.example.moviemate.mapper.toResult
 import com.example.moviemate.view.MovieSearchResult
 import com.example.moviemate.model.MyApi
 import com.example.moviemate.model.response.SearchMovieResponse
@@ -17,7 +17,7 @@ class MovieRepositoryImpl(private val api: MyApi) : MovieRepository {
                 override fun onResponse(call: Call<SearchMovieResponse>, response: Response<SearchMovieResponse>) {
                     if (response.isSuccessful) {
                         val movies = response.body()?.movieListResult?.movieList ?: emptyList()
-                        onResult(Result.success(movies.map { it.toSearchResult() }))
+                        onResult(Result.success(movies.map { it.toResult() }))
                     } else {
                         onResult(Result.failure(Exception("검색 실패")))
                     }
@@ -35,7 +35,7 @@ class MovieRepositoryImpl(private val api: MyApi) : MovieRepository {
                 override fun onResponse(call: Call<SearchMovieResponse>, response: Response<SearchMovieResponse>) {
                     if (response.isSuccessful) {
                         val movies = response.body()?.movieListResult?.movieList ?: emptyList()
-                        onResult(Result.success(movies.map { it.toSearchResult() }))
+                        onResult(Result.success(movies.map { it.toResult() }))
                     } else {
                         onResult(Result.failure(Exception("검색 실패")))
                     }
