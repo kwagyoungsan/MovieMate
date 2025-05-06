@@ -88,19 +88,21 @@ package com.example.moviemate.model.response
  *       },
  */
 
-data class WeeklyBoxOffice(
-    val rank: String,
-    val movieNm: String,
-    val openDt: String,
-    val audiAcc: String,
-    val rankOldAndNew: String,
-    val movieCd: String
-)
-
-data class WeeklyBoxOfficeResponse(
+data class WeeklyResponse(
     val boxOfficeResult: WeeklyBoxOfficeResult
 )
 
 data class WeeklyBoxOfficeResult(
+    val boxofficeType: String,
+    val showRange: String,
     val weeklyBoxOfficeList: List<WeeklyBoxOffice>
+)
+
+data class WeeklyBoxOffice(
+    val rank: String,
+    val movieCd: String,
+    val movieNm: String,
+    val openDt: String,
+    val audiAcc: String,
+    val rankOldAndNew: String
 )

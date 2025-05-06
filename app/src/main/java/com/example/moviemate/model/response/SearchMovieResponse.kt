@@ -9,9 +9,11 @@ data class MovieListResult(
 )
 
 data class Movie(
+    val movieCd: String,
     val movieNm: String,
     val prdtYear: String,
     val openDt: String,
     val typeNm: String,
-    val directors: List<Director>
+    val directors: List<Director>,
+    val actors: List<Actor>
 )

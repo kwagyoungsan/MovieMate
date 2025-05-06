@@ -2,6 +2,7 @@ package com.example.moviemate.view.main
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,17 +15,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.navigation.NavController
+import com.example.moviemate.view.MovieSearchResult
+import com.example.moviemate.util.UiState
 import com.example.moviemate.util.formatDate
 import com.example.moviemate.viewmodel.SearchViewModel
 
 @Composable
-fun SearchPage(viewModel: SearchViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
+fun SearchPage(
+    navController: NavController,
+    viewModel: SearchViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("선택") }
     val options = listOf("선택", "영화명", "감독명")
     var textState by remember { mutableStateOf(TextFieldValue("")) }
 
-    val searchResults by viewModel.searchResults.collectAsState()
+    val searchState by viewModel.searchState.collectAsState()
 
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -94,22 +101,53 @@ fun SearchPage(viewModel: SearchViewModel = androidx.lifecycle.viewmodel.compose
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (searchResults.isNotEmpty()) {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(searchResults) { movie ->
-                        Column(modifier = Modifier.padding(8.dp)) {
-                            Text("🎬 ${movie.movieNm} (${movie.prdtYear})", style = MaterialTheme.typography.bodyLarge)
-                            Text("개봉일: ${formatDate(movie.openDt)}", style = MaterialTheme.typography.bodyMedium)
-                            Text("유형: ${movie.typeNm}", style = MaterialTheme.typography.bodySmall)
-                            Text("감독: ${movie.directors.joinToString { it.peopleNm }}", style = MaterialTheme.typography.bodySmall)
-                            Divider(modifier = Modifier.padding(top = 8.dp))
+            when (searchState) {
+                is UiState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                is UiState.Success -> {
+                    val movies = (searchState as UiState.Success<List<MovieSearchResult>>).data
+
+                    if (movies.isEmpty()) {
+                        Text("검색 결과가 없습니다.", style = MaterialTheme.typography.bodyMedium)
+                    } else {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(movies) { movie ->
+                                Column(
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            navController.navigate("detail/${movie.movieCd}")
+                                        }
+                                ) {
+                                    Text("🎬 ${movie.movieNm} (${movie.prdtYear})", style = MaterialTheme.typography.bodyLarge)
+                                    Text("개봉일: ${formatDate(movie.openDt)}", style = MaterialTheme.typography.bodyMedium)
+                                    Text("유형: ${movie.typeNm}", style = MaterialTheme.typography.bodySmall)
+                                    Text("감독: ${movie.directors.joinToString { it.peopleNm }}", style = MaterialTheme.typography.bodySmall)
+                                    Text("배우: ${movie.actors.joinToString { it.peopleNm }}", style = MaterialTheme.typography.bodySmall)
+                                    Divider(modifier = Modifier.padding(top = 8.dp))
+                                }
+                            }
                         }
                     }
+                }
+
+                is UiState.Error -> {
+                    Text(
+                        text = "에러: ${(searchState as UiState.Error).message}",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
         }
     }
 }
+

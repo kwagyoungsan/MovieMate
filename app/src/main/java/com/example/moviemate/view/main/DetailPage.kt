@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,7 +28,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.moviemate.R
+import com.example.moviemate.util.UiState
 import com.example.moviemate.util.formatDate
+import com.example.moviemate.view.MovieDetail
 import com.example.moviemate.viewmodel.DetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,8 +40,7 @@ fun DetailPage(
     navController: NavController,
     viewModel: DetailViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
-    val detailInfo by viewModel.detailInfo.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
+    val detailState by viewModel.detailState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.fetchDetailInfo(movieCd)
@@ -50,10 +52,7 @@ fun DetailPage(
                 title = { Text("영화 상세 정보") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "뒤로 가기"
-                        )
+                        Icon(Icons.Default.ArrowBack, contentDescription = "뒤로 가기")
                     }
                 }
             )
@@ -65,8 +64,16 @@ fun DetailPage(
                 .fillMaxSize()
                 .background(Color.White)
         ) {
-            when {
-                detailInfo != null -> {
+            when (detailState) {
+                is UiState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                is UiState.Success -> {
+                    val detail = (detailState as UiState.Success<MovieDetail>).data
+
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -74,46 +81,29 @@ fun DetailPage(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         horizontalAlignment = Alignment.Start
                     ) {
-                        Text("🎬 영화명: ${detailInfo?.movieNm ?: "정보 없음"}")
-                        Text("📅 제작년도: ${detailInfo?.prdtYear ?: "정보 없음"}")
-                        Text("⏱️ 상영시간: ${detailInfo?.showTm ?: "정보 없음"} 분")
-                        Text("📅 개봉일: ${detailInfo?.openDt?.let { formatDate(it) } ?: "정보 없음"}")
-                        Text("🎥 제작상태: ${detailInfo?.prdtStatNm ?: "정보 없음"}")
+                        Text("🎬 영화명: ${detail.movieNm}")
+                        Text("📅 제작년도: ${detail.prdtYear}")
+                        Text("⏱️ 상영시간: ${detail.showTm} 분")
+                        Text("📅 개봉일: ${formatDate(detail.openDt)}")
+                        Text("🎥 제작상태: ${detail.prdtStatNm}")
+                        Text("🌍 제작국가: ${detail.nations.joinToString { it.nationNm }}")
+                        Text("🎭 장르: ${detail.genreNm}")
+                        Text("🎬 감독: ${detail.directors.joinToString { it.peopleNm }}")
+                        Text("⭐ 배우: ${detail.actors.joinToString { it.peopleNm }}")
 
-                        // List 타입들도 안전하게
-                        Text("🌍 제작국가: ${detailInfo?.nations?.joinToString { it.nationNm } ?: "정보 없음"}")
-                        Text("🎭 장르: ${detailInfo?.genreNm ?: "정보 없음"}")
-
-                        Text("🎬 감독: ${
-                            detailInfo?.directors?.joinToString { it.peopleNm } ?: "정보 없음"
-                        }")
-
-                        Text("⭐ 배우: ${
-                            detailInfo?.actors?.joinToString { it.peopleNm } ?: "정보 없음"
-                        }")
-
-                        if (!detailInfo?.cast.isNullOrEmpty()) {
-                            Text("👤 배역: ${detailInfo?.cast}")
+                        if (!detail.cast.isNullOrEmpty()) {
+                            Text("👤 배역: ${detail.cast}")
                         }
 
-                        Text("🔞 관람등급: ${detailInfo?.watchGradeNm ?: "정보 없음"}")
+                        Text("🔞 관람등급: ${detail.watchGradeNm}")
                     }
-
                 }
-                errorMessage != null -> {
-                    // 에러가 발생한 경우
+
+                is UiState.Error -> {
                     Text(
-                        text = "에러: $errorMessage",
+                        text = "에러: ${(detailState as UiState.Error).message}",
                         color = Color.Red,
                         modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-                else -> {
-                    // 로딩 중
-                    Text(
-                        text = "로딩 중...",
-                        modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.titleMedium
                     )
                 }
             }

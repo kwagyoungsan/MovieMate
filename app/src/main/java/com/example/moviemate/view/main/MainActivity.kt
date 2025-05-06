@@ -71,7 +71,7 @@ fun NavigationGraph(navController: NavHostController) {
             MovieRankPage(navController = navController)
         }
         composable(BottomNavItem.Search.screenRoute) {
-            SearchPage()
+            SearchPage(navController = navController)
         }
         composable(
             route = "detail/{movieCd}",

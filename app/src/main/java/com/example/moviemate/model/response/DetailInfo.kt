@@ -45,12 +45,3 @@ data class Actor(
     val peopleNm: String,
     val cast: String? = null
 )
-
-
-data class DetailInfoResponse(
-    val movieInfoResult: MovieInfoResult
-)
-
-data class MovieInfoResult(
-    val movieInfo: DetailInfo
-)

@@ -1,32 +1,32 @@
 package com.example.moviemate.model
 
-import com.example.moviemate.model.response.DailyBoxOfficeResponse
-import com.example.moviemate.model.response.DetailInfoResponse
+import com.example.moviemate.model.response.DailyResponse
+import com.example.moviemate.model.response.MovieDetailResponse
 import com.example.moviemate.model.response.SearchMovieResponse
-import com.example.moviemate.model.response.WeeklyBoxOfficeResponse
+import com.example.moviemate.model.response.WeeklyResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface MyApi {
     @GET("searchDailyBoxOfficeList.json")
-    fun getTargetDt(
+    fun getDailyBoxOffice(
         @Query("key") apiKey: String,
-        @Query("targetDt") targetDt: Int
-    ): Call<DailyBoxOfficeResponse>
+        @Query("targetDt") targetDt: String
+    ): Call<DailyResponse>
 
     @GET("searchWeeklyBoxOfficeList.json")
-    fun getRangeDt(
+    fun getWeeklyBoxOffice(
         @Query("key") apiKey: String,
-        @Query("targetDt") targetDt: Int,
-        @Query("weekGb") weekGb: Int
-    ): Call<WeeklyBoxOfficeResponse>
+        @Query("targetDt") targetDt: String,
+        @Query("weekGb") weekGb: String = "0"
+    ): Call<WeeklyResponse>
 
     @GET("searchMovieInfo.json")
-    fun getDetailInfo(
+    fun getMovieDetail(
         @Query("key") apiKey: String,
-        @Query("movieCd") movieCd: Int,
-    ): Call<DetailInfoResponse>
+        @Query("movieCd") movieCd: String
+    ): Call<MovieDetailResponse>
 
     @GET("searchMovieList.json")
     fun searchMovieListByMovieNm(

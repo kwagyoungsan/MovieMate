@@ -10,7 +10,7 @@ object RetrofitInstance {
     private var retrofitClient: Retrofit? = null
     private var movieInfoRetrofit: Retrofit? = null
 
-    fun getClient(): Retrofit? {
+    fun getBoxOffice(): Retrofit? {
         if (retrofitClient == null) {
             retrofitClient = Retrofit.Builder()
                 .baseUrl("http://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/") // Base URL

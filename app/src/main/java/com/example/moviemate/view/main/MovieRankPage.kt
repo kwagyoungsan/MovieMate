@@ -7,6 +7,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -20,9 +21,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.moviemate.model.response.DailyBoxOffice
-import com.example.moviemate.model.DailyData
 import com.example.moviemate.model.response.WeeklyBoxOffice
-import com.example.moviemate.model.WeeklyData
+import com.example.moviemate.util.UiState
+import com.example.moviemate.viewmodel.MovieRankViewModel
 import java.util.Calendar
 
 const val TAG = "MovieRankPage"
@@ -234,144 +235,99 @@ fun DateSelectionRow(
     }
 }
 
-// Main Page
 @Composable
-fun MovieRankPage(navController: NavController) {
-    val dailyData = DailyData.instance
-    val weeklyData = WeeklyData.instance
-    var searchDailyResults by remember { mutableStateOf<List<DailyBoxOffice>?>(null) }
-    var searchWeeklyResults by remember { mutableStateOf<List<WeeklyBoxOffice>?>(null) }
-    var isLoading by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-    var targetDate by remember { mutableStateOf("") } // 단일 날짜
-    var startDate by remember { mutableStateOf("") } // 주간 시작일
-    var endDate by remember { mutableStateOf("") } // 주간 종료일
-    var dayButton by remember { mutableStateOf(true) } // 일간/주간 상태
+fun MovieRankPage(
+    navController: NavController,
+    viewModel: MovieRankViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
+    val dailyState by viewModel.dailyState.collectAsState()
+    val weeklyState by viewModel.weeklyState.collectAsState()
+
+    var dayButton by remember { mutableStateOf(true) }
+    var targetDate by remember { mutableStateOf("") }
+    var startDate by remember { mutableStateOf("") }
+    var endDate by remember { mutableStateOf("") }
     val context = LocalContext.current
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.Start
     ) {
-        Column(
+        PeriodSelectionRow(
+            dayButton = dayButton,
+            weekButton = !dayButton,
+            onButtonSelected = { dayButton = it }
+        )
+
+        DateSelectionRow(
+            dayButton = dayButton,
+            onDateSelected = { date -> targetDate = date },
+            onRangeSelected = { start, end ->
+                startDate = start
+                endDate = end
+            }
+        )
+
+        Button(
+            onClick = {
+                if (dayButton && targetDate.isBlank()) {
+                    Toast.makeText(context, "날짜를 선택해주세요", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+                if (!dayButton && (startDate.isBlank() || endDate.isBlank())) {
+                    Toast.makeText(context, "기간을 선택해주세요", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+
+                if (dayButton) {
+                    viewModel.fetchDailyBoxOffice(targetDate)
+                } else {
+                    viewModel.fetchWeeklyBoxOffice(targetDate)
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = Alignment.Start
+                .height(48.dp)
         ) {
-            // 일간/주간 선택 버튼
-            PeriodSelectionRow(
-                dayButton = dayButton,
-                weekButton = !dayButton,
-                onButtonSelected = { isDaySelected ->
-                    dayButton = isDaySelected
-                }
-            )
+            Text("검색")
+        }
 
-            // 날짜 선택 UI
-            DateSelectionRow(
-                dayButton = dayButton,
-                onDateSelected = { selectedDate ->
-                    targetDate = selectedDate.replace("-", "") // 일간 날짜 포맷
-                },
-                onRangeSelected = { start, end ->
-                    startDate = start
-                    endDate = end // 주간 날짜 포맷
-                }
-            )
+        Spacer(modifier = Modifier.height(12.dp))
 
-            // 검색 버튼
-            Button(
-                onClick = {
-                    isLoading = true
-                    errorMessage = null
-                    searchDailyResults = null
-                    searchWeeklyResults = null
-
-                    if (dayButton && targetDate.isBlank()) {
-                        Toast.makeText(context, "날짜를 선택해주세요", Toast.LENGTH_SHORT).show()
-                        return@Button
+        if (dayButton) {
+            when (dailyState) {
+                is UiState.Loading -> CircularProgressIndicator()
+                is UiState.Success<*> -> {
+                    val data = (dailyState as UiState.Success<List<DailyBoxOffice>>).data
+                    SearchDailyResultPage(data) { movieCd ->
+                        navController.navigate("detail/$movieCd")
                     }
-                    if (!dayButton && (startDate.isBlank() || endDate.isBlank())) {
-                        Toast.makeText(context, "기간을 선택해주세요", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    }
-
-                    // API 호출
-                    if (dayButton) {
-                        Log.d(TAG, "일간 검색: $targetDate")
-                        dailyData.getDailyData(
-                            date = targetDate.toIntOrNull() ?: 0,
-                            onSuccess = { results ->
-                                searchDailyResults = results
-                                isLoading = false
-                            },
-                            onFailure = { error ->
-                                errorMessage = error.message
-                                isLoading = false
-                            }
-                        )
-                    } else {
-                        Log.d(TAG, "주간 검색: $startDate ~ $endDate")
-                        Log.d(TAG, "클릭한 날짜: $targetDate")
-                        weeklyData.getWeeklyData(
-                            date = targetDate.toIntOrNull() ?: 0,
-                            onSuccess = { results ->
-                                searchWeeklyResults = results
-                                isLoading = false
-                            },
-                            onFailure = { error ->
-                                errorMessage = error.message
-                                isLoading = false
-                            }
-                        )
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-            ) {
-                Text("검색")
-            }
-
-            // 로딩 상태
-            if (isLoading) {
-                Text("로딩 중...", style = MaterialTheme.typography.bodyMedium)
-            }
-
-            // 에러 메시지
-            errorMessage?.let {
-                Text(
-                    text = it,
-                    color = Color.Red,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            if (dayButton) {
-                searchDailyResults?.let { results ->
-                    SearchDailyResultPage(
-                        searchResults = results,
-                        onMovieClick = { movieCd ->
-                            navController.navigate("detail/$movieCd")
-                        }
-                    )
                 }
-            } else {
-                searchWeeklyResults?.let { results ->
-                    SearchWeeklyResultPage(
-                        searchResults = results,
-                        onMovieClick = { movieCd ->
-                            navController.navigate("detail/$movieCd")
-                        }
-                    )
+                is UiState.Error -> {
+                    Text("에러: ${(dailyState as UiState.Error).message}", color = Color.Red)
+                }
+            }
+        } else {
+            when (weeklyState) {
+                is UiState.Loading -> CircularProgressIndicator()
+                is UiState.Success<*> -> {
+                    val data = (weeklyState as UiState.Success<List<WeeklyBoxOffice>>).data
+                    SearchWeeklyResultPage(data) { movieCd ->
+                        navController.navigate("detail/$movieCd")
+                    }
+                }
+                is UiState.Error -> {
+                    Text("에러: ${(weeklyState as UiState.Error).message}", color = Color.Red)
                 }
             }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
