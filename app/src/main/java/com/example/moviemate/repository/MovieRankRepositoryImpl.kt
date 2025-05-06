@@ -16,7 +16,7 @@ class MovieRankRepositoryImpl(
     private val api: MyApi = RetrofitInstance.getBoxOffice()!!.create(MyApi::class.java)
 ) : MovieRankRepository {
 
-    override fun getDailyBoxOffice(date: String, onResult: (Result<List<DailyBoxOffice>>) -> Unit) {
+    override fun getDailyBoxOffice(date: Int, onResult: (Result<List<DailyBoxOffice>>) -> Unit) {
         api.getDailyBoxOffice(BuildConfig.API_KEY, date).enqueue(object : Callback<DailyResponse> {
             override fun onResponse(call: Call<DailyResponse>, response: Response<DailyResponse>) {
                 if (response.isSuccessful) {
@@ -36,7 +36,7 @@ class MovieRankRepositoryImpl(
         })
     }
 
-    override fun getWeeklyBoxOffice(date: String, onResult: (Result<List<WeeklyBoxOffice>>) -> Unit) {
+    override fun getWeeklyBoxOffice(date: Int, onResult: (Result<List<WeeklyBoxOffice>>) -> Unit) {
         api.getWeeklyBoxOffice(BuildConfig.API_KEY, date).enqueue(object : Callback<WeeklyResponse> {
             override fun onResponse(call: Call<WeeklyResponse>, response: Response<WeeklyResponse>) {
                 if (response.isSuccessful) {

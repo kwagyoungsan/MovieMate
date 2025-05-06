@@ -32,7 +32,9 @@ import androidx.navigation.navArgument
 import com.example.moviemate.R
 import com.example.moviemate.util.Constants.MOVIE_RANK
 import com.example.moviemate.util.Constants.SEARCH
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

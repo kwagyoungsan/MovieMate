@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MovieRankViewModel @Inject constructor(
-    private val repository: MovieRankRepository = MovieRankRepositoryImpl()
+    private val repository: MovieRankRepository
 ) : ViewModel() {
 
     private val _dailyState = MutableStateFlow<UiState<List<DailyBoxOffice>>>(UiState.Success(emptyList()))
@@ -22,7 +22,7 @@ class MovieRankViewModel @Inject constructor(
     private val _weeklyState = MutableStateFlow<UiState<List<WeeklyBoxOffice>>>(UiState.Success(emptyList()))
     val weeklyState: StateFlow<UiState<List<WeeklyBoxOffice>>> = _weeklyState
 
-    fun fetchDailyBoxOffice(date: String) {
+    fun fetchDailyBoxOffice(date: Int) {
         _dailyState.value = UiState.Loading
         repository.getDailyBoxOffice(date) { result ->
             result.fold(
@@ -32,7 +32,7 @@ class MovieRankViewModel @Inject constructor(
         }
     }
 
-    fun fetchWeeklyBoxOffice(date: String) {
+    fun fetchWeeklyBoxOffice(date: Int) {
         _weeklyState.value = UiState.Loading
         repository.getWeeklyBoxOffice(date) { result ->
             result.fold(
@@ -42,3 +42,5 @@ class MovieRankViewModel @Inject constructor(
         }
     }
 }
+
+

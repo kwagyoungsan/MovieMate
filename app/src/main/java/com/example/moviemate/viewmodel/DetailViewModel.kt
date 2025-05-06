@@ -14,11 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
-    private val repository: DetailRepository = DetailRepositoryImpl(
-        RetrofitInstance.getMovieInfo()!!.create(MyApi::class.java)
-    )
+    private val repository: DetailRepository
 ) : ViewModel() {
-
     private val _detailState = MutableStateFlow<UiState<MovieDetail>>(UiState.Loading)
     val detailState: StateFlow<UiState<MovieDetail>> = _detailState
 
@@ -32,4 +29,5 @@ class DetailViewModel @Inject constructor(
         }
     }
 }
+
 

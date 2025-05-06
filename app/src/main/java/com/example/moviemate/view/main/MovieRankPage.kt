@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.moviemate.model.response.DailyBoxOffice
 import com.example.moviemate.model.response.WeeklyBoxOffice
 import com.example.moviemate.util.UiState
@@ -246,84 +247,63 @@ fun MovieRankPage(
 
     var dayButton by remember { mutableStateOf(true) }
     var targetDate by remember { mutableStateOf("") }
-    var startDate by remember { mutableStateOf("") }
-    var endDate by remember { mutableStateOf("") }
+
     val context = LocalContext.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.Start
+        verticalArrangement = Arrangement.spacedBy(16.dp) // 👈 버튼과 UI 요소 간 간격
     ) {
+
+        // 기간 선택 (일간/주간 토글)
         PeriodSelectionRow(
             dayButton = dayButton,
             weekButton = !dayButton,
-            onButtonSelected = { dayButton = it }
+            onButtonSelected = { isDay -> dayButton = isDay }
         )
 
+        // 날짜 선택
         DateSelectionRow(
             dayButton = dayButton,
             onDateSelected = { date -> targetDate = date },
-            onRangeSelected = { start, end ->
-                startDate = start
-                endDate = end
-            }
+            onRangeSelected = { _, _ -> }
         )
 
+        // 검색 버튼
         Button(
             onClick = {
-                if (dayButton && targetDate.isBlank()) {
+                if (targetDate.isBlank()) {
                     Toast.makeText(context, "날짜를 선택해주세요", Toast.LENGTH_SHORT).show()
-                    return@Button
-                }
-                if (!dayButton && (startDate.isBlank() || endDate.isBlank())) {
-                    Toast.makeText(context, "기간을 선택해주세요", Toast.LENGTH_SHORT).show()
-                    return@Button
-                }
-
-                if (dayButton) {
-                    viewModel.fetchDailyBoxOffice(targetDate)
                 } else {
-                    viewModel.fetchWeeklyBoxOffice(targetDate)
+                    if (dayButton) viewModel.fetchDailyBoxOffice(targetDate.toInt())
+                    else viewModel.fetchWeeklyBoxOffice(targetDate.toInt())
                 }
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
+            modifier = Modifier.fillMaxWidth() // 👈 넓게
         ) {
             Text("검색")
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
+        // 검색 결과
         if (dayButton) {
             when (dailyState) {
                 is UiState.Loading -> CircularProgressIndicator()
-                is UiState.Success<*> -> {
-                    val data = (dailyState as UiState.Success<List<DailyBoxOffice>>).data
-                    SearchDailyResultPage(data) { movieCd ->
-                        navController.navigate("detail/$movieCd")
-                    }
-                }
-                is UiState.Error -> {
-                    Text("에러: ${(dailyState as UiState.Error).message}", color = Color.Red)
-                }
+                is UiState.Success -> SearchDailyResultPage(
+                    searchResults = (dailyState as UiState.Success).data,
+                    onMovieClick = { navController.navigate("detail/$it") }
+                )
+                is UiState.Error -> Text("에러: ${(dailyState as UiState.Error).message}", color = Color.Red)
             }
         } else {
             when (weeklyState) {
                 is UiState.Loading -> CircularProgressIndicator()
-                is UiState.Success<*> -> {
-                    val data = (weeklyState as UiState.Success<List<WeeklyBoxOffice>>).data
-                    SearchWeeklyResultPage(data) { movieCd ->
-                        navController.navigate("detail/$movieCd")
-                    }
-                }
-                is UiState.Error -> {
-                    Text("에러: ${(weeklyState as UiState.Error).message}", color = Color.Red)
-                }
+                is UiState.Success -> SearchWeeklyResultPage(
+                    searchResults = (weeklyState as UiState.Success).data,
+                    onMovieClick = { navController.navigate("detail/$it") }
+                )
+                is UiState.Error -> Text("에러: ${(weeklyState as UiState.Error).message}", color = Color.Red)
             }
         }
     }
@@ -333,6 +313,6 @@ fun MovieRankPage(
 @Preview(showBackground = true)
 @Composable
 fun PreviewMovieRankPage() {
-    val navController = androidx.navigation.compose.rememberNavController()
+    val navController = rememberNavController()
     MovieRankPage(navController = navController)
 }

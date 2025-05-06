@@ -6,6 +6,7 @@ import com.example.moviemate.model.MyApi
 import com.example.moviemate.model.RetrofitInstance
 import com.example.moviemate.repository.MovieRepository
 import com.example.moviemate.repository.MovieRepositoryImpl
+import com.example.moviemate.repository.SearchRepository
 import com.example.moviemate.util.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,9 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val repository: MovieRepository = MovieRepositoryImpl(
-        RetrofitInstance.getMovieInfo()!!.create(MyApi::class.java)
-    )
+    private val repository: SearchRepository
 ) : ViewModel() {
 
     private val _searchState = MutableStateFlow<UiState<List<MovieSearchResult>>>(UiState.Success(emptyList()))
