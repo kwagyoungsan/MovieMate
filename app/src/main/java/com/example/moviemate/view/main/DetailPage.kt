@@ -1,34 +1,18 @@
 package com.example.moviemate.view.main
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.moviemate.R
 import com.example.moviemate.util.UiState
 import com.example.moviemate.util.formatDate
 import com.example.moviemate.view.MovieDetail
@@ -63,48 +47,23 @@ fun DetailPage(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .background(Color.White)
+                .background(Color.White),
+            contentAlignment = Alignment.Center
         ) {
-            when (detailState) {
+            when (val state = detailState) {
                 is UiState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+                    CircularProgressIndicator()
                 }
 
                 is UiState.Success -> {
-                    val detail = (detailState as UiState.Success<MovieDetail>).data
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        Text("🎬 영화명: ${detail.movieNm}")
-                        Text("📅 제작년도: ${detail.prdtYear}")
-                        Text("⏱️ 상영시간: ${detail.showTm} 분")
-                        Text("📅 개봉일: ${formatDate(detail.openDt)}")
-                        Text("🎥 제작상태: ${detail.prdtStatNm}")
-                        Text("🌍 제작국가: ${detail.nations.joinToString { it.nationNm }}")
-                        Text("🎭 장르: ${detail.genreNm}")
-                        Text("🎬 감독: ${detail.directors.joinToString { it.peopleNm }}")
-                        Text("⭐ 배우: ${detail.actors.joinToString { it.peopleNm }}")
-
-                        if (!detail.cast.isNullOrEmpty()) {
-                            Text("👤 배역: ${detail.cast}")
-                        }
-
-                        Text("🔞 관람등급: ${detail.watchGradeNm}")
-                    }
+                    DetailContent(detail = state.data)
                 }
 
                 is UiState.Error -> {
                     Text(
-                        text = "에러: ${(detailState as UiState.Error).message}",
+                        text = "에러: ${state.message}",
                         color = Color.Red,
-                        modifier = Modifier.align(Alignment.Center)
+                        textAlign = TextAlign.Center
                     )
                 }
             }
@@ -112,3 +71,34 @@ fun DetailPage(
     }
 }
 
+@Composable
+private fun DetailContent(detail: MovieDetail) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        InfoText("🎬 영화명", detail.movieNm)
+        InfoText("📅 제작년도", detail.prdtYear)
+        InfoText("⏱️ 상영시간", "${detail.showTm} 분")
+        InfoText("📅 개봉일", formatDate(detail.openDt))
+        InfoText("🎥 제작상태", detail.prdtStatNm)
+        InfoText("🌍 제작국가", detail.nations.joinToString { it.nationNm })
+        InfoText("🎭 장르", detail.genreNm)
+        InfoText("🎬 감독", detail.directors.joinToString { it.peopleNm })
+        InfoText("⭐ 배우", detail.actors.joinToString { it.peopleNm })
+
+        detail.cast?.takeIf { it.isNotBlank() }?.let {
+            InfoText("👤 배역", it)
+        }
+
+        InfoText("🔞 관람등급", detail.watchGradeNm)
+    }
+}
+
+@Composable
+private fun InfoText(label: String, value: String) {
+    Text("$label: $value", style = MaterialTheme.typography.bodyMedium)
+}
